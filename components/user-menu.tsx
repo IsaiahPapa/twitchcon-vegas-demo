@@ -1,8 +1,6 @@
 'use client'
 
 import Image from 'next/image'
-import { type Session } from 'next-auth'
-import { signOut } from 'next-auth/react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -14,16 +12,18 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { IconExternalLink } from '@/components/ui/icons'
 
-export interface UserMenuProps {
-  user: Session['user']
-}
-
 function getUserInitials(name: string) {
   const [firstName, lastName] = name.split(' ')
   return lastName ? `${firstName[0]}${lastName[0]}` : firstName.slice(0, 2)
 }
 
-export function UserMenu({ user }: UserMenuProps) {
+export function UserMenu() {
+  const user = {
+    email: 'creati@isaiahcreati.com',
+    id: 'DEMO',
+    image: 'https://i.imgur.com/Gls0gVS.png',
+    name: 'IsaiahCreati'
+  }
   return (
     <div className="flex items-center justify-between">
       <DropdownMenu>
@@ -34,7 +34,8 @@ export function UserMenu({ user }: UserMenuProps) {
                 className="w-6 h-6 transition-opacity duration-300 rounded-full select-none ring-1 ring-zinc-100/10 hover:opacity-80"
                 src={user?.image ? `${user.image}&s=60` : ''}
                 alt={user.name ?? 'Avatar'}
-                height={48} width={48}
+                height={48}
+                width={48}
               />
             ) : (
               <div className="flex items-center justify-center text-xs font-medium uppercase rounded-full select-none h-7 w-7 shrink-0 bg-muted/50 text-muted-foreground">
@@ -60,16 +61,6 @@ export function UserMenu({ user }: UserMenuProps) {
               Vercel Homepage
               <IconExternalLink className="w-3 h-3 ml-auto" />
             </a>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() =>
-              signOut({
-                callbackUrl: '/'
-              })
-            }
-            className="text-xs"
-          >
-            Log Out
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

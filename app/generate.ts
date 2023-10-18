@@ -1,11 +1,13 @@
+'use server'
 import { OpenAIStream, StreamingTextResponse } from 'ai'
 import { Configuration, OpenAIApi } from 'openai-edge'
 
 import { nanoid } from '@/lib/utils'
 import { Redis } from '@upstash/redis/nodejs'
 import { throwNoENV } from '@/lib/redis'
-
-export const runtime = 'edge'
+import Models, { AiVoiceSchema } from '@/lib/models'
+import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY
@@ -18,42 +20,50 @@ const redis = new Redis({
 
 const openai = new OpenAIApi(configuration)
 
-export async function POST(req: Request) {
-  const json = await req.json()
-  const { messages, previewToken } = json
-  const userId = "DEMO"
-
-  if (!userId) {
-    return new Response('Unauthorized', {
-      status: 401
-    })
-  }
-
-  if (previewToken) {
-    configuration.apiKey = previewToken
+const GenerateCharacterChat = async (voice: AiVoiceSchema) => {
+  const prompt = Models.find(model => model.id === voice.model_id)?.prompt
+  if (!prompt) {
+    console.log(
+      `Unable to find prompt. Voice ID: ${voice.model_id}, ${voice.name}`
+    )
+    return
   }
 
   const res = await openai.createChatCompletion({
     model: 'gpt-3.5-turbo',
-    messages,
+    messages: [
+      {
+        content: String(
+          Models.find(model => model.id === voice.model_id)?.prompt
+        ),
+        role: 'system'
+      },
+      {
+        content: 'Introduce yourself!',
+        role: 'user'
+      }
+    ],
     temperature: 0.7,
     stream: true
   })
-
+  const id = nanoid()
   const stream = OpenAIStream(res, {
+    async onToken(token) {
+      console.log(`token`, token)
+    },
     async onCompletion(completion) {
-      const title = json.messages[0].content.substring(0, 100)
-      const id = json.id ?? nanoid()
+      console.log(`Completed!`)
+      const title = `Chat with ${voice.name}!`
       const createdAt = Date.now()
       const path = `/chat/${id}`
       const payload = {
         id,
         title,
-        userId,
+        modelId: voice.model_id,
+        userId: 'DEMO',
         createdAt,
         path,
         messages: [
-          ...messages,
           {
             content: completion,
             role: 'assistant'
@@ -61,12 +71,13 @@ export async function POST(req: Request) {
         ]
       }
       await redis.hmset(`chat:${id}`, payload)
-      await redis.zadd(`user:chat:${userId}`, {
+      await redis.zadd(`user:chat:${'DEMO'}`, {
         score: createdAt,
         member: `chat:${id}`
       })
     }
   })
-
-  return new StreamingTextResponse(stream)
+  
 }
+
+export default GenerateCharacterChat
