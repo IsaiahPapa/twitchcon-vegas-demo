@@ -9,6 +9,8 @@ import Models, { AiVoiceSchema } from '@/lib/models'
 
 export const runtime = 'edge'
 
+export const maxDuration = 300;
+
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY
 })
