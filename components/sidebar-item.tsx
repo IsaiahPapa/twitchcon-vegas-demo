@@ -12,6 +12,7 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+import { useVoices } from '@/contexts/VoiceContext'
 
 interface SidebarItemProps {
   chat: Chat
@@ -20,32 +21,23 @@ interface SidebarItemProps {
 
 export function SidebarItem({ chat, children }: SidebarItemProps) {
   const pathname = usePathname()
+  const { voices } = useVoices()
   const isActive = pathname === chat.path
 
-  if (!chat?.id) return null
+  const voice = voices.find(v => v.model_id === chat.modelId)
+
+  if (!chat?.id || !voice) return null
 
   return (
-    <div className="relative">
-      <div className="absolute left-2 top-1 flex h-6 w-6 items-center justify-center">
-        {chat.sharePath ? (
-          <Tooltip delayDuration={1000}>
-            <TooltipTrigger
-              tabIndex={-1}
-              className="focus:bg-muted focus:ring-1 focus:ring-ring"
-            >
-              <IconUsers className="mr-2" />
-            </TooltipTrigger>
-            <TooltipContent>This is a shared chat.</TooltipContent>
-          </Tooltip>
-        ) : (
-          <IconMessage className="mr-2" />
-        )}
-      </div>
+    <div className="relative flex flex-row gap-2">
+
+        <img className='h-12 w-12 rounded-md' key={voice.name} src={voice.image_thumbnail_url}/>
+      
       <Link
         href={chat.path}
         className={cn(
           buttonVariants({ variant: 'ghost' }),
-          'group w-full pl-8 pr-16',
+          'group w-full pr-16',
           isActive && 'bg-accent'
         )}
       >
@@ -56,7 +48,7 @@ export function SidebarItem({ chat, children }: SidebarItemProps) {
           <span className="whitespace-nowrap">{chat.title}</span>
         </div>
       </Link>
-      {isActive && <div className="absolute right-2 top-1">{children}</div>}
+      {/* {isActive && <div className="absolute right-2 top-1">{children}</div>} */}
     </div>
   )
 }

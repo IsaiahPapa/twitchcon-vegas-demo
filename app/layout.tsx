@@ -43,10 +43,23 @@ export default function RootLayout({ children }: RootLayoutProps) {
       >
         <Toaster />
         <Providers attribute="class" defaultTheme="system" enableSystem>
-          <div className="flex flex-col min-h-screen">
-            {/* @ts-ignore */}
-            <Header />
-            <main className="flex flex-col flex-1 bg-muted/50">{children}</main>
+          <div className="flex flex-row">
+            <div className="flex flex-col min-h-screen w-full">
+              {/* @ts-ignore */}
+              <Header />
+              <main className="flex flex-col flex-1 bg-muted/50">
+                {children}
+              </main>
+            </div>
+            <div
+              className="rounded-lg h-screen"
+              style={{
+                width: '250px',
+                backgroundSize: 'contain',
+                backgroundImage: "url('/ai-voices-banner.png')",
+                aspectRatio: '686/3235'
+              }}
+            ></div>
           </div>
           <TailwindIndicator />
         </Providers>

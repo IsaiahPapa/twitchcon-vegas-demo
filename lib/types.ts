@@ -5,6 +5,7 @@ export interface Chat extends Record<string, any> {
   title: string
   createdAt: Date
   userId: string
+  modelId: string;
   path: string
   messages: Message[]
   sharePath?: string
