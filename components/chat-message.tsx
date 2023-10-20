@@ -29,9 +29,16 @@ export function ChatMessage({ message, image, ...props }: ChatMessageProps) {
             ? 'bg-background'
             : 'bg-primary text-primary-foreground'
         )}
+        style={{
+          overflow: 'hidden',
+          borderRadius: '4rem'
+        }}
       >
         {message.role === 'user' ? (
-          <IconUser />
+          <img
+          width={`48rem`}
+            src={`https://bot.isaiahcreati.com/logos/logo_small_440x440.png`}
+          />
         ) : image ? (
           <img src={image} />
         ) : (
