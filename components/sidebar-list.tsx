@@ -20,6 +20,7 @@ export async function SidebarList({ userId }: SidebarListProps) {
                   <SidebarActions
                     chat={chat}
                     removeChat={removeChat}
+                    // @ts-ignore
                     shareChat={shareChat}
                   /> 
                 </SidebarItem>
